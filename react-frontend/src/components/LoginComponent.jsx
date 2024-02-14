@@ -5,37 +5,44 @@ class LoginComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
-        username: '',
+        userName: '',
         password: '',
         isAuthenticated : false
     };
   }
 
-  handleUsernameChange = (event) => {
-    this.setState({ username: event.target.value });
+  handleUserNameChange =  (event) => {
+    this.setState({ userName: event.target.value });
   };
 
   handlePasswordChange = (event) => {
     this.setState({ password: event.target.value });
   };
 
-  handleSubmit = (e) => {
+  handleSubmit = async (e) => {
 
     e.preventDefault();
-    let credentials = {username: this.state.username, password: this.state.password, isAuthenticated: false};
+    let credentials = {userName: this.state.userName, password: this.state.password};
     console.log('credentials => ' + JSON.stringify(credentials));
-    LoginService.loginUser(credentials).then((res) => {
-            this.setState({ credentials: res.data});
-    });
-    if (this.state.isAuthenticated === true) {
-      this.props.history.push('/home');
-    } else {
-      alert('Invalid credentials. Please try again.');
-    }
+    try {
+      const res = await LoginService.loginUser(credentials);
+      const { isAuthenticated } = res.data;
+      this.setState({
+        credentials: res.data,
+        isAuthenticated
+      });
+      if (isAuthenticated) {
+        this.props.history.push('/employees');
+      } else {
+        alert('Invalid credentials. Please try again.');
+      }
+  }catch(error){
+    console.error('Error during signup:', error);
+  }
   };
 
   render() {
-    const { username, password } = this.state;
+    const { userName, password } = this.state;
 
     return (
       <div>
@@ -45,8 +52,8 @@ class LoginComponent extends Component {
             <label>Username:</label>
             <input
               type="text"
-              value={username}
-              onChange={this.handleUsernameChange}
+              value={userName}
+              onChange={this.handleUserNameChange}
             />
           </div>
           <div>

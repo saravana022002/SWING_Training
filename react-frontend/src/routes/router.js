@@ -8,12 +8,17 @@ import UpdateVendorComponent from '../components/UpdateVendorComponent';
 import ViewVendorComponent from '../components/ViewVendorComponent';
 import HomeComponent from '../components/HomeComponent';
 import LoginComponent from '../components/LoginComponent';
+import SignUpComponent from '../components/SignUpComponent';
 // Define your routes in an array
 const routes = [
   {
     path: '/',
     exact: true,
     component: LoginComponent,
+  },
+  {
+    path: '/signup',
+    component: SignUpComponent,
   },
   {
     path: '/home',

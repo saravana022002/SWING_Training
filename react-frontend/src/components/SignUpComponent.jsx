@@ -1,51 +1,72 @@
 import React, { Component } from 'react';
-import LoginService from '../services/LoginService';
+import SignupService from '../services/SignupService';
 
 class SignUpComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
-        username: '',
+        userName: '',
         password: '',
-        isAuthenticated : false
+        phone: '',
+        isCreated : false
     };
   }
 
   handleUsernameChange = (event) => {
-    this.setState({ username: event.target.value });
+    this.setState({ userName: event.target.value });
   };
 
   handlePasswordChange = (event) => {
     this.setState({ password: event.target.value });
   };
-
-  handleSubmit = (e) => {
-
-    e.preventDefault();
-    let credentials = {username: this.state.username, password: this.state.password, isAuthenticated: false};
-    console.log('credentials => ' + JSON.stringify(credentials));
-    LoginService.loginUser(credentials).then((res) => {
-            this.setState({ credentials: res.data});
-    });
-    if (this.state.isAuthenticated === true) {
-      this.props.history.push('/home');
-    } else {
-      alert('Invalid credentials. Please try again.');
-    }
+  handlePhoneChange = (event) => {
+    this.setState({ phone: event.target.value });
   };
 
+  handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const signupData = {
+        userName: this.state.userName,
+        password: this.state.password,
+        phone: this.state.phone
+    };
+
+    console.log('signupData => ' + JSON.stringify(signupData));
+
+    try {
+        const res = await SignupService.signup(signupData);
+        const { isCreated } = res.data;
+
+        this.setState({
+            signupData: res.data,
+            isCreated
+        });
+
+        if (isCreated) {
+            this.props.history.push('/');
+        } else {
+            alert('Invalid signup credentials. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error during signup:', error);
+        // Handle error appropriately (e.g., show an error message)
+    }
+};
+
+
   render() {
-    const { username, password } = this.state;
+    const { userName, password, phone } = this.state;
 
     return (
       <div>
-        <h1>Login</h1>
+        <h1>Signup</h1>
         <form onSubmit={this.handleSubmit}>
           <div>
             <label>Username:</label>
             <input
               type="text"
-              value={username}
+              value={userName}
               onChange={this.handleUsernameChange}
             />
           </div>
@@ -58,7 +79,15 @@ class SignUpComponent extends Component {
             />
           </div>
           <div>
-            <button type="submit">Login</button>
+            <label>Phone:</label>
+            <input
+              type="text"
+              value={phone}
+              onChange={this.handlePhoneChange}
+            />
+          </div>
+          <div>
+            <button type="submit">Signup</button>
           </div>
         </form>
       </div>
