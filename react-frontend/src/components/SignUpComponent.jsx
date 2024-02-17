@@ -7,6 +7,7 @@ class SignUpComponent extends Component {
     this.state = {
         userName: '',
         password: '',
+        copyPassword: '',
         phone: '',
         isCreated : false
     };
@@ -19,13 +20,23 @@ class SignUpComponent extends Component {
   handlePasswordChange = (event) => {
     this.setState({ password: event.target.value });
   };
+  handleCopyPasswordChange = (event) => {
+    this.setState({ copyPassword: event.target.value });
+  };
   handlePhoneChange = (event) => {
     this.setState({ phone: event.target.value });
   };
 
   handleSubmit = async (e) => {
     e.preventDefault();
+   
+    const { userName, password, copyPassword, phone } = this.state;
 
+    // Check if the passwords match
+    if (password !== copyPassword) {
+        alert('Passwords do not match. Please re-enter.');
+        return;
+    }
     const signupData = {
         userName: this.state.userName,
         password: this.state.password,
@@ -56,7 +67,7 @@ class SignUpComponent extends Component {
 
 
   render() {
-    const { userName, password, phone } = this.state;
+    const { userName, password, copyPassword, phone } = this.state;
 
     return (
       <div>
@@ -76,6 +87,14 @@ class SignUpComponent extends Component {
               type="password"
               value={password}
               onChange={this.handlePasswordChange}
+            />
+          </div>
+          <div>
+            <label>Re-enter Password:</label>
+            <input
+              type="password"
+              value={copyPassword}
+              onChange={this.handleCopyPasswordChange}
             />
           </div>
           <div>
