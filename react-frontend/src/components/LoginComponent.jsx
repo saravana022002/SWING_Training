@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import LoginService from '../services/LoginService';
+import { setAuthToken } from '../axios_helper';
 
 class LoginComponent extends Component {
   constructor(props) {
@@ -25,7 +26,9 @@ class LoginComponent extends Component {
     let credentials = {userName: this.state.userName, password: this.state.password};
     console.log('credentials => ' + JSON.stringify(credentials));
     try {
-      const res = await LoginService.loginUser(credentials);
+      const res = await LoginService.loginUser(credentials).then((response) => {
+        setAuthToken(response.data.token)
+      });
       const { isAuthenticated } = res.data;
       this.setState({
         credentials: res.data,

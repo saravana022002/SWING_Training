@@ -1,10 +1,6 @@
 package net.saravana.entities;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import javax.persistence.*;
 
 @Table(name = "app_user")
 @Entity

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import SignupService from '../services/SignupService';
+import { setAuthToken } from '../axios_helper';
 
 class SignUpComponent extends Component {
   constructor(props) {
@@ -46,7 +47,9 @@ class SignUpComponent extends Component {
     console.log('signupData => ' + JSON.stringify(signupData));
 
     try {
-        const res = await SignupService.signup(signupData);
+        const res = await SignupService.signup(signupData).then((response) => {
+          setAuthToken(response.data.token)
+        });
         const { isCreated } = res.data;
 
         this.setState({

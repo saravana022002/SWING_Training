@@ -1,11 +1,11 @@
-import axios from 'axios';
+import {request} from '../axios_helper';
 
-const LOGIN_API_BASE_URL = "http://localhost:8080/api/v1/login"; // Adjust the URL accordingly
+const LOGIN_API_URL = "/api/v1/login"; // Adjust the URL accordingly
 
 class LoginService {
 
 loginUser(credentials) {
-        return axios.post(LOGIN_API_BASE_URL, credentials);
+    return request("POST", LOGIN_API_URL, credentials);
 }
 
     // Additional methods related to login could be added here
