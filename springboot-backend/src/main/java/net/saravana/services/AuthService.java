@@ -1,77 +1,63 @@
 package net.saravana.services;
+import lombok.RequiredArgsConstructor;
+import net.saravana.dto.AccountDto;
+import net.saravana.dto.CredentialsDto;
+import net.saravana.dto.IdentityDto;
+import net.saravana.dto.UserDto;
 import net.saravana.entities.Account;
+import net.saravana.entities.User;
+import net.saravana.exceptions.AppException;
+import net.saravana.mapper.AccountMapper;
 import net.saravana.repositories.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
+import java.nio.CharBuffer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
-
+@RequiredArgsConstructor
 @Service
 public class AuthService {
 
     @Autowired
     private final AccountRepository accountRepository;
+    private final AccountMapper accountMapper;
     private final PasswordEncoder passwordEncoder;
 
-    public AuthService(AccountRepository accountRepository) {
-        this.accountRepository = accountRepository;
-        // Initialize the Argon2PasswordEncoder with the same parameters used during encoding
-        this.passwordEncoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
-    }
 
     // Method to verify if the raw password matches the encoded password
-    public boolean verifyPassword(String rawPassword, String encodedPassword) {
-        return passwordEncoder.matches(rawPassword, encodedPassword);
+    public AccountDto findByEmail(String email){
+        Account account = accountRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException("Unknown user", HttpStatus.NOT_FOUND));
+        return accountMapper.toAccountDto(account);
     }
 
     // Example usage in your login/authentication logic
-    public boolean authenticateUser(Account account) {
+    public AccountDto authenticateUser(CredentialsDto credentialsDto) {
         // Retrieve the encoded password from your database based on the username
-        String storedEncodedPassword = getEncodedPasswordByUsername(account.getUserName());
+        Account dbAccount = accountRepository.findByEmail(credentialsDto.getEmail())
+                .orElseThrow(() -> new AppException("Unknown user", HttpStatus.NOT_FOUND));
 
-        // Verify if the raw password matches the stored encoded password
-        return verifyPassword(account.getPassword(), storedEncodedPassword);
-    }
-
-    // Replace this method with your actual logic to retrieve the encoded password
-    private String getEncodedPasswordByUsername(String userName) {
-        Account account = accountRepository.findByUserName(userName);
-        return (account != null) ? account.getPassword() : null;
-    }
-    private Account getAccountByUsername(String userName) {
-        return accountRepository.findByUserName(userName);
-    }
-
-    public Map<String, Object> signupUser(Account account) {
-        Map<String, Object> props = new HashMap<>();
-
-        Account dbAccount = getAccountByUsername(account.getUserName());
-        if (dbAccount != null) {
-            props.put("message", "Account already found for this username");
-            props.put("isCreated", false);
-            return props;
+        if(passwordEncoder.matches(CharBuffer.wrap(credentialsDto.getPassword()), dbAccount.getPassword())){
+            return accountMapper.toAccountDto(dbAccount);
         }
+        throw new AppException("Invalid password", HttpStatus.BAD_REQUEST);
+    }
 
-        String password = account.getPassword();
-        if (StringUtils.isEmpty(password)) {
-            props.put("message", "Account not created (password cannot be null or empty)");
-            props.put("isCreated", false);
-            return props;
+
+    public AccountDto signupUser(IdentityDto identityDto) {
+        Optional<Account> optionalUser = accountRepository.findByEmail(identityDto.getEmail());
+        if(optionalUser.isPresent()){
+            throw new AppException("Account already exists", HttpStatus.BAD_REQUEST);
         }
-
-        account.setPassword(passwordEncoder.encode(password));
+        Account account = accountMapper.identityToAccount(identityDto);
+        account.setPassword(passwordEncoder.encode(CharBuffer.wrap(identityDto.getPassword())));
         Account savedAccount = accountRepository.save(account);
-
-        props.put("message", "Account created successfully");
-        props.put("account", savedAccount);
-        props.put("isCreated", true);
-
-        return props;
+        return accountMapper.toAccountDto(savedAccount);
     }
 
 

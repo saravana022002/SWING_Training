@@ -1,10 +1,11 @@
 import axios from 'axios';
 
 axios.defaults.baseURL = 'http://localhost:8080' 
-axios.defaults.headers.post["Content-type"] = 'application/json'
+axios.defaults.headers.post["Content-Type"] = 'application/json'
 
 export const getAuthToken = () => {
-    return window.localStorage.getItem("auth_token");
+    const authToken = window.localStorage.getItem("auth_token");
+    return authToken ? authToken : null;
 }
 
 export const setAuthToken = (token) => {
@@ -12,14 +13,16 @@ export const setAuthToken = (token) => {
 }
 
 export const request = (method, url, data) => {
-    let headers = {};
-    if(getAuthToken() !== null && getAuthToken() !== "null"){
-        headers = {"Authorization": `Bearer ${getAuthToken()}`};
-    }
+    const authToken = getAuthToken();
+
+    console.log("authToken:", authToken);
+
+    const headers = authToken !== null ? { "Authorization": `Bearer ${authToken}`} : {};
+
     return axios({
         method: method,
         headers: headers,
         url: url,
         data: data
-    });
-}
+    }); 
+};

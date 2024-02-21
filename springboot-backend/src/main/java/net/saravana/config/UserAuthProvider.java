@@ -4,9 +4,11 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import net.saravana.dto.AccountDto;
 import net.saravana.dto.UserDto;
+import net.saravana.services.AuthService;
 import net.saravana.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
@@ -27,7 +29,8 @@ public class UserAuthProvider {
     @Autowired
     private Environment environment;
     private String secretKey;
-    private UserService userService;
+    @Autowired
+    private AuthService authService;
 
 
     @PostConstruct
@@ -48,7 +51,7 @@ public class UserAuthProvider {
         JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey))
                 .build();
         DecodedJWT decoded = verifier.verify(token);
-        UserDto user = userService.findByLogin(decoded.getIssuer());
-        return  new UsernamePasswordAuthenticationToken(user, null, Collections.emptyList());
+        AccountDto accountDto = authService.findByEmail(decoded.getIssuer());
+        return  new UsernamePasswordAuthenticationToken(accountDto, null, Collections.emptyList());
     }
 }

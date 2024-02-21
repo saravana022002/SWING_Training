@@ -7,11 +7,13 @@ import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Data
-public class CredentialsDto {
-    private String email;
+@Builder
+public class AccountDto {
 
-    private String login;
-    private char[] password;
+    private long id;
+    private String userName;
+    private String phone;
+    private String email;
+    private String token;
 }

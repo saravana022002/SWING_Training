@@ -1,50 +1,41 @@
 package net.saravana.controllers;
 
-import net.saravana.entities.Account;
+import lombok.RequiredArgsConstructor;
+import net.saravana.config.UserAuthProvider;
+import net.saravana.dto.AccountDto;
+import net.saravana.dto.CredentialsDto;
+import net.saravana.dto.IdentityDto;
 import net.saravana.services.AuthService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.Map;
-
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/")
 public class LoginController {
 
     private final AuthService authService;
+    private final UserAuthProvider userAuthProvider;
 
-
-    public LoginController(AuthService authService) {
-        this.authService = authService;
-    }
 
     // get all employees
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> getLoginUser(@RequestBody Account account) {
+    public ResponseEntity<AccountDto> getLoginUser(@RequestBody CredentialsDto credentialsDto) {
         // Your logic to check the login credentials and retrieve the user
-        boolean  isAuthenticated = authService.authenticateUser(account);
-        Map<String, Object> response = new HashMap<>();
-        response.put("isAuthenticated", isAuthenticated);
-        if(isAuthenticated){
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }else {
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        AccountDto accountDto = authService.authenticateUser(credentialsDto);
+        accountDto.setToken(userAuthProvider.createToken(accountDto.getEmail()));
+        return ResponseEntity.ok(accountDto);
 
     }
 
 
     // create employee rest api
     @PostMapping("/signup")
-    public ResponseEntity<Map<String, Object>>  createUser(@RequestBody Account account) {
-        Map<String, Object> response = authService.signupUser(account);
-        if((Boolean) response.get("isCreated")) {
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
-        }else {
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<AccountDto> createUser(@RequestBody IdentityDto identityDto) {
+        AccountDto accountDto = authService.signupUser(identityDto);
+        return ResponseEntity.ok(accountDto);
     }
-
 }

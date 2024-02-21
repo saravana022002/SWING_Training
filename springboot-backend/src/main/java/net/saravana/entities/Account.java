@@ -1,6 +1,6 @@
 package net.saravana.entities;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "Account_Users", uniqueConstraints = @UniqueConstraint(columnNames = "userName"))
@@ -18,15 +18,19 @@ public class Account {
 	@Column(name = "phone")
 	private String phone;
 
+	@Column(name = "email")
+	private String email;
+
 	public Account() {
 
 	}
 
-	public Account(String userName, String password, String phone) {
+	public Account(String userName, String password, String phone, String email) {
 		super();
 		this.userName = userName;
 		this.password = password;
 		this.phone = phone;
+		this.email = email;
 	}
 	public long getId() {
 		return id;
@@ -51,5 +55,11 @@ public class Account {
 	}
 	public void setPhone(String phone) {
 		this.phone = phone;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
 	}
 }

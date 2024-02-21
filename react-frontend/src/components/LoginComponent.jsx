@@ -6,14 +6,14 @@ class LoginComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
-        userName: '',
+        email: '',
         password: '',
         isAuthenticated : false
     };
   }
 
-  handleUserNameChange =  (event) => {
-    this.setState({ userName: event.target.value });
+  handleEmailChange =  (event) => {
+    this.setState({ email: event.target.value });
   };
 
   handlePasswordChange = (event) => {
@@ -21,42 +21,58 @@ class LoginComponent extends Component {
   };
 
   handleSubmit = async (e) => {
-
     e.preventDefault();
-    let credentials = {userName: this.state.userName, password: this.state.password};
+  
+    const credentials = {
+      email: this.state.email,
+      password: this.state.password
+    };
+  
     console.log('credentials => ' + JSON.stringify(credentials));
+  
     try {
-      const res = await LoginService.loginUser(credentials).then((response) => {
-        setAuthToken(response.data.token)
-      });
-      const { isAuthenticated } = res.data;
-      this.setState({
-        credentials: res.data,
-        isAuthenticated
-      });
-      if (isAuthenticated) {
-        this.props.history.push('/employees');
+      const res = await LoginService.loginUser(credentials);
+  
+      console.log('Response:', res.data); // Log the entire response for inspection
+  
+      if (res.data.token) {
+        setAuthToken(res.data.token);
+        this.setState({
+          credentials: res.data,
+          isAuthenticated: true // Update this line based on the actual structure of the response
+        });
+  
+        if (this.state.isAuthenticated) {
+          this.props.history.push('/employees');
+        }
       } else {
-        alert('Invalid credentials. Please try again.');
+        this.handleAuthenticationFailure();
       }
-  }catch(error){
-    console.error('Error during signup:', error);
-  }
+    } catch (error) {
+      console.error('Error during login:', error);
+      this.handleAuthenticationFailure();
+    }
   };
+  
+  
+  handleAuthenticationFailure = () => {
+    alert('Authentication failed. Please try again.');
+  };
+  
 
   render() {
-    const { userName, password } = this.state;
+    const { email, password } = this.state;
 
     return (
       <div>
         <h1>Login</h1>
         <form onSubmit={this.handleSubmit}>
           <div>
-            <label>Username:</label>
+            <label>Email:</label>
             <input
               type="text"
-              value={userName}
-              onChange={this.handleUserNameChange}
+              value={email}
+              onChange={this.handleEmailChange}
             />
           </div>
           <div>

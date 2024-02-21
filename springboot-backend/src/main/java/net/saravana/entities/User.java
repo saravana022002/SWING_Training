@@ -1,6 +1,6 @@
 package net.saravana.entities;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Table(name = "app_user")
 @Entity
