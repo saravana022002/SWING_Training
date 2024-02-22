@@ -9,8 +9,11 @@ class SignUpComponent extends Component {
         userName: '',
         password: '',
         copyPassword: '',
+        email: '',
         phone: '',
-        isCreated : false
+        isCreated : false,
+        isValidEmail : true,
+        doPasswordsMatch : true
     };
   }
 
@@ -22,46 +25,44 @@ class SignUpComponent extends Component {
     this.setState({ password: event.target.value });
   };
   handleCopyPasswordChange = (event) => {
-    this.setState({ copyPassword: event.target.value });
+    const enteredCopyPassword = event.target.value;
+    this.setState({ copyPassword: enteredCopyPassword });
+
+    // Check if the entered password and copyPassword match
+    const doPasswordsMatch = this.state.password === enteredCopyPassword;
+
+    // Update the validation state or handle accordingly
+    this.setState({ doPasswordsMatch: doPasswordsMatch });
+ };
+  handleEmailChange = (event) => {
+    const enteredEmail = event.target.value;
+    this.setState({ email: enteredEmail });
+  
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    const isValidEmail = emailPattern.test(enteredEmail);
+  
+    this.setState({ isValidEmail: isValidEmail });
   };
+  
   handlePhoneChange = (event) => {
     this.setState({ phone: event.target.value });
   };
 
   handleSubmit = async (e) => {
     e.preventDefault();
-   
-    const { userName, password, copyPassword, phone } = this.state;
-
-    // Check if the passwords match
-    if (password !== copyPassword) {
-        alert('Passwords do not match. Please re-enter.');
-        return;
-    }
     const signupData = {
         userName: this.state.userName,
         password: this.state.password,
+        email: this.state.email,
         phone: this.state.phone
     };
 
     console.log('signupData => ' + JSON.stringify(signupData));
 
     try {
-        const res = await SignupService.signup(signupData).then((response) => {
-          setAuthToken(response.data.token)
-        });
-        const { isCreated } = res.data;
-
-        this.setState({
-            signupData: res.data,
-            isCreated
-        });
-
-        if (isCreated) {
-            this.props.history.push('/');
-        } else {
-            alert('Invalid signup credentials. Please try again.');
-        }
+        await SignupService.signup(signupData);
+        this.props.history.push('/');
     } catch (error) {
         console.error('Error during signup:', error);
         // Handle error appropriately (e.g., show an error message)
@@ -70,7 +71,7 @@ class SignUpComponent extends Component {
 
 
   render() {
-    const { userName, password, copyPassword, phone } = this.state;
+    const { userName, password, copyPassword, email, phone } = this.state;
 
     return (
       <div>
@@ -100,6 +101,16 @@ class SignUpComponent extends Component {
               onChange={this.handleCopyPasswordChange}
             />
           </div>
+          {!this.state.doPasswordsMatch && <p style={{ color: 'red' }}>Passwords do not match.</p>}
+          <div>
+            <label>Email:</label>
+            <input
+              type="text"
+              value={email}
+              onChange={this.handleEmailChange}
+            />
+          </div>
+          {!this.state.isValidEmail && <p style={{ color: 'red' }}>Please enter a valid email address.</p>}
           <div>
             <label>Phone:</label>
             <input
