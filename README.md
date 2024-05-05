@@ -1,1 +1,1 @@
-Swing traing for my own
+Swing training for my own
