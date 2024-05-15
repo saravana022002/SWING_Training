@@ -21,7 +21,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
     String header = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-    if(header != null){
+    if(request.getRequestURI().matches("/api/v1/login") || request.getRequestURI().matches("/api/v1/signup")){
+        SecurityContextHolder.getContext().setAuthentication(null);
+    }
+    else if(header != null){
         String[] elements = header.split(" ");
 
             if (elements.length == 2 && "Bearer".equals(elements[0])){
