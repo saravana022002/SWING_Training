@@ -1,3 +1,6 @@
+import React from 'react';
+import { Route, Redirect } from 'react-router-dom';
+
 import ListEmployeeComponent from '../components/ListEmployeeComponent';
 import ListVendorComponent from '../components/ListVendorComponent';
 import CreateEmployeeComponent from '../components/CreateEmployeeComponent';
@@ -9,12 +12,32 @@ import ViewVendorComponent from '../components/ViewVendorComponent';
 import HomeComponent from '../components/HomeComponent';
 import LoginComponent from '../components/LoginComponent';
 import SignUpComponent from '../components/SignUpComponent';
+
+const isAuthenticated = () => {
+  const authToken = localStorage.getItem('auth_token');
+  return authToken ? true : false; 
+};
+
+const requireAuth = (Component) => {
+  return isAuthenticated() ? Component : () => <Redirect to="/login" />;
+};
+
+
 // Define your routes in an array
 const routes = [
   {
     path: '/',
     exact: true,
-    component: LoginComponent,
+    component: () => (
+      isAuthenticated() ? <Redirect to="/home" /> : <Redirect to="/login" />
+    ),
+  },
+  {
+    path: '/login',
+    exact: true,
+    component: () => (
+      isAuthenticated() ? <Redirect to="/home" /> : <LoginComponent />
+    ),
   },
   {
     path: '/signup',
@@ -22,32 +45,31 @@ const routes = [
   },
   {
     path: '/home',
-    component: HomeComponent,
+    component: requireAuth(HomeComponent),
   },
   {
     path: '/employees',
-    component: ListEmployeeComponent,
+    component: requireAuth(ListEmployeeComponent),
   },
   {
     path: '/add-employee/:id',
-    component: CreateEmployeeComponent,
+    component: requireAuth(CreateEmployeeComponent),
   },
   {
     path: '/view-employee/:id',
-    component: ViewEmployeeComponent,
+    component:  requireAuth(ViewEmployeeComponent),
   },
   {
     path: '/vendors',
-    component: ListVendorComponent,
+    component:  requireAuth(ListVendorComponent),
   },
   {
     path: '/add-vendor/:id',
-    component: CreateVendorComponent,
+    component: requireAuth(CreateVendorComponent),
   },
   {
     path: '/view-vendor/:id',
-    exact: true,
-    component: ViewVendorComponent,
+    component:  requireAuth(ViewVendorComponent),
   }
 ];
 

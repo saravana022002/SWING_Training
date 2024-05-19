@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 import LoginService from '../services/LoginService';
 import { setAuthToken } from '../axios_helper';
 import '../styles/LoginComponent.css'; // Import your custom CSS file for additional styling
@@ -40,7 +41,7 @@ class LoginComponent extends Component {
         });
 
         if (this.state.isAuthenticated) {
-          this.props.history.push('/employees');
+          this.props.history.push('/home');
         }
       } else {
         this.handleAuthenticationFailure();
