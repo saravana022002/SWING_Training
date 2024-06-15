@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { withRouter } from "react-router-dom";
+
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import LoginService from '../services/LoginService';
 import { setAuthToken } from '../axios_helper';
@@ -41,7 +43,7 @@ class LoginComponent extends Component {
         });
 
         if (this.state.isAuthenticated) {
-          this.props.history.push('/home');
+          this.props.history.go('/home');
         }
       } else {
         this.handleAuthenticationFailure();
@@ -93,4 +95,4 @@ class LoginComponent extends Component {
   }
 }
 
-export default LoginComponent;
+export default withRouter(LoginComponent);
