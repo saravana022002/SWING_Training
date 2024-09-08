@@ -1,6 +1,5 @@
 package net.saravana.repositories;
 
-import net.saravana.entities.Account;
 import net.saravana.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -8,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface AccountRepository extends JpaRepository<Account, Long> {
+public interface AccountRepository extends JpaRepository<User, Long> {
     boolean existsByUserNameAndPassword(String userName, String password);
-    Optional<Account> findByEmail(String email);
+    Optional<User> findByEmail(String email);
 }
